@@ -1080,10 +1080,12 @@ int InstrEmit_stfsx(PPCHIRBuilder& f, const InstrData& i) {
 // https://randomascii.wordpress.com/2018/01/07/finding-a-cpu-design-bug-in-the-xbox-360/
 
 int InstrEmit_dcbf(PPCHIRBuilder& f, const InstrData& i) {
-  Value* ea = CalculateEA_0(f, i.X.RA, i.X.RB);
-  f.CacheControl(ea, 128,
-                 CacheControlType::CACHE_CONTOROL_TYPE_DATA_STORE_AND_FLUSH);
-  return 0;
+    if (i.X.RB != 11)
+        return 0;
+
+    Value* val = f.Sub(f.LoadGPR(i.X.RB), f.LoadConstantUint64(0x0002));
+    f.StoreGPR(i.X.RB, val);
+    return 0;
 }
 
 int InstrEmit_dcbst(PPCHIRBuilder& f, const InstrData& i) {
